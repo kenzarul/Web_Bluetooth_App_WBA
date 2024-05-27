@@ -1,0 +1,76 @@
+{
+  "homepage": "https://TryTestAppliBLE.github.io/Web_Bluetooth_App_WBA",
+  "name": "web-bluetooth-app",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@popperjs/core": "^2.11.8",
+    "@testing-library/jest-dom": "^6.4.5",
+    "@testing-library/react": "^15.0.7",
+    "@testing-library/user-event": "^14.5.2",
+    "body-parser": "^1.20.2",
+    "bootstrap": "^5.3.3",
+    "boxicons": "^2.1.4",
+    "browserify-fs": "^1.0.0",
+    "buffer": "^6.0.3",
+    "chart.js": "^4.4.2",
+    "commander": "^12.0.0",
+    "cors": "^2.8.5",
+    "crc": "^4.3.2",
+    "express": "^4.19.2",
+    "fs": "^0.0.1-security",
+    "https": "^1.0.0",
+    "multer": "^1.4.5-lts.1",
+    "node-fetch": "^2.7.0",
+    "package-name": "^0.1.0",
+    "path": "^0.12.7",
+    "react": "^18.3.1",
+    "react-bootstrap": "^2.10.2",
+    "react-chartjs-2": "^5.2.0",
+    "react-dom": "^18.3.1",
+    "react-markdown": "^9.0.1",
+    "react-router-dom": "^6.23.1",
+    "react-scripts": "^5.0.1",
+    "sass": "^1.77.1",
+    "save-dev": "^0.0.1-security",
+    "web-vitals": "^4.0.0"
+  },
+  "scripts": {
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build",
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "devDependencies": {
+    "gh-pages": "^6.1.1",
+    "marked": "^12.0.2"
+  },
+  "browser": {
+    "child_process": false
+  },
+  "description": "Two github pages hosting the web app are available: -   [Web Bluetooth® **HOME PAGE**](https://applible.github.io/ST-Web-Bluetooth/ \"https://applible.github.io/ST-Web-Bluetooth/\"). -   [Web Bluetooth® **STM32WB**](https://AppliBLE.github.io/Web_Bluetooth_App_WB \"https://AppliBLE.github.io/Web_Bluetooth_App_WB\").",
+  "main": "index.js",
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
