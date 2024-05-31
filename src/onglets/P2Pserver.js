@@ -411,6 +411,24 @@ const P2Pserver = (props) => {
     return prompt('Please enter the path to STM32CubeProgrammer:', 'C:\\Program Files\\STMicroelectronics\\STM32Cube\\STM32CubeProgrammer\\bin\\STM32_Programmer_CLI.exe');
   }
 
+  function askToDownloadServer() {
+    const userResponse = window.confirm('Have you downloaded the server? Click "OK" for Yes and "Cancel" for No.');
+    if (!userResponse) {
+      // If the user clicks "Cancel" (No), start the download
+      const downloadLink = document.createElement('a');
+      downloadLink.href = 'https://stmicroelectronics-my.sharepoint.com/:u:/r/personal/kamarul_binkamarulazhar_st_com/Documents/my-server.exe?csf=1&web=1&e=MX2HUN';
+      downloadLink.download = 'my-server.exe';
+      document.body.appendChild(downloadLink);
+      downloadLink.click();
+      document.body.removeChild(downloadLink);
+  
+      // Inform the user to run the downloaded server
+      alert('Please click on the downloaded "my-server.exe" file to run the server.');
+      return false; // Return false to indicate that the server is not yet running
+    }
+    return true; // Return true to indicate that the server is already running
+  }
+
 
 
   async function downloadByCubeProgrammerCLI() {
@@ -455,6 +473,11 @@ const P2Pserver = (props) => {
       const fileResponse = await fetch(downloadUrl);
       if (!fileResponse.ok) {
         throw new Error(`Failed to fetch the binary file: ${fileResponse.statusText}`);
+      }
+
+      const serverDownloaded = askToDownloadServer();
+      if (!serverDownloaded) {
+        return;
       }
       const blob = await fileResponse.blob();
       const programmerPath = promptForProgrammerPath();

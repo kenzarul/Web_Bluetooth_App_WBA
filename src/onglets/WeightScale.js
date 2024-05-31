@@ -73,7 +73,7 @@ const WeightScale = (props) => {
 
     weight = buf[1]/2;   //weight
     bmi = buf[10]/10;  //BMI
-    height = buf[12]/10;  //height
+    height = buf[12]/100;  //height
 
     console.log("----- Indication Received -----");
     console.log("Weight : ", weight);
