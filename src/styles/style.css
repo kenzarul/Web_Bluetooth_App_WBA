@@ -1704,7 +1704,7 @@ img {
 	margin-bottom: 7px;
 	margin-top: 7px;
 
-	width: 45%;
+	width: 60%;
 
   }
   
@@ -1794,7 +1794,7 @@ img {
   .sidebar {
 	position: sticky; /* Make sidebar sticky */
 	top: 60%; /* Stick to the top of the viewport */
-	transform: translateY(-50%);
+	transform: translateY(-40%);
 	height: auto; /* Height based on content */
   }
 
@@ -1860,7 +1860,7 @@ img {
 
 
 
-  @media (max-width: 1250px) and (min-width: 769px) {
+  @media (max-width: 1250px)  {
   
   
 	.Chartitle__card2, .Chartitle__card3, .Chartitle__card4 {
@@ -1905,7 +1905,7 @@ img {
   }
   
   /* Small screens (landscape phones/tablets) */
-  @media (max-width: 768px) {
+  @media (max-width: 950px) {
 	.Char__container {
 	  grid-template-columns: 1fr;
 	  gap: 1rem;
@@ -1925,9 +1925,10 @@ img {
 	  font-size: 23px;
 	}
 
-	.app-list-text, .Chartitle__card5 h1 {
+	.app-list-text, .Chartitle__card5 h1, .way-list-text{
 		font-size: 16px;
 	  }
+	
   
 	.Chartitle__card2 h3, .Chartitle__card3 h3, .Chartitle__card4 h3 {
 	  font-size: 16px;
@@ -1940,7 +1941,7 @@ img {
 
 	  .sidebar {
 		position: relative;
-		top: 35%; /* Stick to the top of the viewport */
+		top: 30%; /* Stick to the top of the viewport */
 		height: auto; 
 	  }
 
@@ -1990,7 +1991,7 @@ img {
 	  font-size: 12px;
 	}
 
-	.app-list-text, .Chartitle__card5 h1 {
+	.app-list-text, .Chartitle__card5 h1 ,.way-list-text{
 		font-size: 10px;
 	  }
 

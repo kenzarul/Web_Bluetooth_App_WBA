@@ -412,21 +412,13 @@ const P2Pserver = (props) => {
   }
 
   function askToDownloadServer() {
-    const userResponse = window.confirm('Have you downloaded the server? Click "OK" for Yes and "Cancel" for No.');
-    if (!userResponse) {
-      // If the user clicks "Cancel" (No), start the download
       const downloadLink = document.createElement('a');
-      downloadLink.href = 'https://stmicroelectronics-my.sharepoint.com/:u:/r/personal/kamarul_binkamarulazhar_st_com/Documents/my-server.exe?csf=1&web=1&e=MX2HUN';
-      downloadLink.download = 'my-server.exe';
+      downloadLink.href = 'https://drive.google.com/file/d/1d6BukgkaE0Cdv99Syh71MiEWt3obfvbu/view?usp=drive_link';
       document.body.appendChild(downloadLink);
       downloadLink.click();
       document.body.removeChild(downloadLink);
-  
-      // Inform the user to run the downloaded server
       alert('Please click on the downloaded "my-server.exe" file to run the server.');
-      return false; // Return false to indicate that the server is not yet running
-    }
-    return true; // Return true to indicate that the server is already running
+
   }
 
 
@@ -473,11 +465,6 @@ const P2Pserver = (props) => {
       const fileResponse = await fetch(downloadUrl);
       if (!fileResponse.ok) {
         throw new Error(`Failed to fetch the binary file: ${fileResponse.statusText}`);
-      }
-
-      const serverDownloaded = askToDownloadServer();
-      if (!serverDownloaded) {
-        return;
       }
       const blob = await fileResponse.blob();
       const programmerPath = promptForProgrammerPath();
@@ -685,8 +672,8 @@ const P2Pserver = (props) => {
           <table className='InfoTable'>
             <tbody>
             <tr><th className='InfoTableTh'><box-icon name='info-circle' size='sm' type='solid' color='white' class='infoLogo' ></box-icon> Information</th></tr>
-            <tr id="versionrecent" style={{display: 'none'}}><th className='InfoTableTd'>This is the most recent version of the application.</th></tr>
-            <tr id="versionupdate" style={{display: 'none'}}><th className='InfoTableTd'>Peer2Peer Server v1.4.0 is available.<span className = 'UpdateButton'><button>Update Now</button></span></th></tr>
+            <tr id="versionrecent" style={{display: 'none'}}><th className='InfoTableTd'>This is the latest version of the application.</th></tr>
+            <tr id="versionupdate" style={{display: 'none'}}><th className='InfoTableTd'>The latest version of the application is available.</th></tr>
             </tbody>
           </table>
         
@@ -795,7 +782,7 @@ const P2Pserver = (props) => {
 
       <div class="custom-divider"></div>
 
-      <h3>Select The Available Version</h3>
+      <h1>Select The Available Version</h1>
 
       <div class="Chartitle__card6">
           <select id="selectedVersion">
@@ -807,22 +794,32 @@ const P2Pserver = (props) => {
 
       <div class="custom-divider"></div>
 
+      <h1>Upload by :</h1>
+
       <div class="way-list-container">
 
           <label className={`way-list-item ${selectedWay=== 'cubeCLI' ? 'active' : ''}`}>
           <input type="radio" name="way" value="cubeCLI" checked={selectedWay === 'cubeCLI'}  onChange={() => setSelectedWay('cubeCLI')} />
-          <span className="way-list-text">Upload by CubeProgrammer CLI</span></label>
+          <span className="way-list-text">STM32CubeProgrammer CLI</span></label>
 
           <label className={`way-list-item ${selectedWay=== 'ota' ? 'active' : ''}`}>
           <input type="radio" name="way" value="ota" checked={selectedWay === 'ota'}  onChange={() => setSelectedWay('ota')} />
-          <span className="way-list-text">Upload by OTA</span></label>
+          <span className="way-list-text">OTA</span></label>
 
       </div>
 
+      <div class="custom-divider"></div>
 
-      
+        <h1>Install And Open The Server First Before Uploading A New Application</h1>
+
+        <div className="Charbuttitle__card">
+        <button onClick={askToDownloadServer}>Install Server</button>
+        </div>
+
+      <div class="custom-divider"></div>
+
       <div className="Charbuttitle__card">
-        <button onClick={handleDownloadClick}>Download</button>
+        <button onClick={handleDownloadClick}>Upload App</button>
       </div>
 
             </div>
