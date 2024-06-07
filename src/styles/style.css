@@ -1365,7 +1365,7 @@ tr:last-child td {
 	justify-content: start; 
 }
 
-/* Responsive styles */
+
 @media (max-width: 768px) {
   .CGM__container,
   .CGM__container3 {
@@ -1373,14 +1373,14 @@ tr:last-child td {
   }
   
   .CGM__title2 {
-    font-size: 20px; /* Adjust font size for smaller screens */
+    font-size: 20px; 
   }
   
   .CGM__card2,
   .CGMtitle__card2,
   .CGMtitle__card3,
   .CGMtitle__card4 {
-    width: 100%; /* Full width for smaller screens */
+    width: 100%; 
   }
   
   .CGMtitle__card3 button,
@@ -1421,7 +1421,7 @@ tr:last-child td {
   }
 }
 
-/* Ensure images are responsive */
+
 img {
   max-width: 100%;
   height: auto;
@@ -1776,33 +1776,33 @@ img {
   }
 
   .app-list-link {
-	text-decoration: none; /* Remove underline from links */
-	color: inherit; /* Inherit text color from parent */
+	text-decoration: none;
+	color: inherit; 
   }
   
   
-  /* Main content container */
+
   .main-content {
-	flex-grow: 1; /* Allow main content to grow and take up available space */
+	flex-grow: 1;
 
   }
   
   .sidebar .Chartitle__card5 {
-	width: 310px; /* Adjust the width of the sidebar as needed */
+	width: 310px;
  }
 
   .sidebar {
-	position: sticky; /* Make sidebar sticky */
-	top: 60%; /* Stick to the top of the viewport */
+	position: sticky; 
+	top: 60%; 
 	transform: translateY(-40%);
-	height: auto; /* Height based on content */
+	height: auto; 
   }
 
   .ALL__container {
 	display: flex;
 	flex-direction: row;
 	align-items: flex-start;
-	justify-content: flex-start; /* Align to the left */
+	justify-content: flex-start; 
 	height: 100vh;
 	margin-right: 0;
 	padding-right: 0; 
@@ -1897,14 +1897,14 @@ img {
 
 	  .sidebar {
 		position: relative;
-		top: 52%; /* Stick to the top of the viewport */
+		top: 52%; 
 		height: auto; 
 	  }
 
 	  
   }
   
-  /* Small screens (landscape phones/tablets) */
+
   @media (max-width: 950px) {
 	.Char__container {
 	  grid-template-columns: 1fr;
@@ -1941,7 +1941,7 @@ img {
 
 	  .sidebar {
 		position: relative;
-		top: 30%; /* Stick to the top of the viewport */
+		top: 30%;
 		height: auto; 
 	  }
 
@@ -1966,7 +1966,7 @@ img {
 	
   }
   
-  /* Extra small screens (portrait phones) */
+
   @media (max-width: 480px) {
 	.Char__container {
 	  grid-template-columns: 1fr;
@@ -2006,7 +2006,7 @@ img {
 
 	  .sidebar {
 		position: relative;
-		top: 40%; /* Stick to the top of the viewport */
+		top: 40%; 
 		height: auto; 
 	  }
 

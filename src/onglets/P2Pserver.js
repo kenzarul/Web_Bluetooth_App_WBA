@@ -13,7 +13,7 @@
 //  * If no LICENSE file comes with this software, it is provided AS-IS.
 //  *
 //  ******************************************************************************
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import imagelightOffBlue from '../images/lightOffBlue.svg';
 import imagelightOnBlue from '../images/lightOnBlue.svg';
 import imagelightOffPink from '../images/lightOffPink.svg';
@@ -39,16 +39,12 @@ const P2Pserver = (props) => {
   let rebootCharacteristic;
   let ReadCharacteristic ;
   const [deviceType, setDeviceType] = useState('nucleo');
-  const [selectedApp, setSelectedApp] = useState('app0');
+  const [selectedApp, setSelectedApp] = useState('');
   const [selectedWay, setSelectedWay] = useState('cubeCLI');
+  const [showCharacteristicDescription, setShowCharacteristicDescription] = useState(false);
+  let characteristicFound = false;
 
-
-
-
-
-
-
-  
+ 
   // Filtering the different datathroughput characteristics
   props.allCharacteristics.map(element => {
     switch (element.characteristic.uuid) {
@@ -62,6 +58,7 @@ const P2Pserver = (props) => {
         case "0000fe31-8e22-4541-9d4c-21edae82ed19":
           ReadCharacteristic = element;
           readInfoDevice();
+          characteristicFound = true;
           break;
       case "0000fe11-8e22-4541-9d4c-21edae82ed19":
         rebootCharacteristic = element;
@@ -96,10 +93,18 @@ const P2Pserver = (props) => {
     createLogElement(statusWord, 1, "P2Pserver READ");
   }
 
+  useEffect(() => {
+    if (characteristicFound) {
+      setShowCharacteristicDescription(true);
+      // Call readInfoDevice or any other function that depends on the characteristic
+      readInfoDevice();
+    }
+  }, []);
+
   async function readInfoDevice() {
     var value = await ReadCharacteristic.characteristic.readValue();
     let statusWord = Array.from(new Uint8Array(value.buffer)).map(byte => byte.toString(16).padStart(2, '0')).join('-');
-    let device, rev, board, hw, appv, app, hsv, hsvp1, hsvp2;
+    let device, rev, board, hw, appv, app, hsv, hsvp1, hsvp2, apprep;
   
     console.log("Device Info", statusWord);
    
@@ -261,42 +266,52 @@ const P2Pserver = (props) => {
       switch (AppFWID) {
         case '0x83':
           app = 'Peer 2 Peer Server'
+          apprep = 'BLE_p2pServer'
           break;
     
         case '0x89':
           app = 'Heart Rate'
+          apprep = 'BLE_HeartRate'
           break;
   
         case '0x8a':
           app = 'Health Thermometer'
+          apprep = 'BLE_HealthThermometer'
           break;
 
         case '0x88':
           app = 'Data Throughput'
+          apprep = 'BLE_HealthThermometer'
           break;
 
         case '0x85':
           app = 'Peer 2 Peer Router'
+          apprep = 'BLE_p2pRouter'
           break;
 
         case '0x87':
           app = 'Serial Com Peripheral'
+          apprep = 'BLE_SerialCom_Peripheral'
           break;
 
         case '0x8d':
           app = 'Alert Notifiaction'
+          apprep = 'BLE_AlertNotification'
           break;
 
         case '0x90':
           app = 'Find Me'
+          apprep = 'BLE_FindMe'
           break;
 
         case '0x8f':
           app = 'Phone Alert Status'
+          apprep = 'BLE_PhoneAlertStatus'
           break;
 
         case '0x8e':
           app = 'Proximity'
+          apprep = 'BLE_Proximity'
           break;
         }
 
@@ -330,7 +345,7 @@ const P2Pserver = (props) => {
     var appvs = document.getElementById("appvs");
     appvs.innerText = "App FW Version : " + appv;
 
-    const latestVersion = await getLastCommitMessage() ;
+    const latestVersion = await getLatestVersion(apprep);
 
     const versionRecentRow = document.getElementById('versionrecent');
     const versionUpdateRow = document.getElementById('versionupdate');
@@ -347,42 +362,41 @@ const P2Pserver = (props) => {
   
   }
 
-  const owner = 'STMicroelectronics';
-  const repo = 'STM32CubeWBA';
-  const path = 'Projects/NUCLEO-WBA55CG/Applications/BLE/BLE_p2pServer';
-  
-  const url = `https://api.github.com/repos/${owner}/${repo}/commits?path=${encodeURIComponent(path)}`;
-  
-  async function getLastCommitMessage() {
+  async function getLatestVersion(appFolderName) {
+    const url = `${githubBaseUrl}${appFolderName}`;
     try {
       const response = await fetch(url);
       if (!response.ok) {
         throw new Error(`GitHub API responded with status code ${response.status}`);
       }
-      const commits = await response.json();
-      if (!Array.isArray(commits) || commits.length === 0) {
-        throw new Error('No commits found for the specified path.');
-      }
-      // Assuming the first commit in the array is the latest commit
-      const lastCommit = commits[0];
-      const lastCommitMessage = lastCommit.commit.message;
-      console.log('Last commit message:', lastCommitMessage);
-      const formattedVersion = formatVersion(lastCommitMessage);
-      console.log('The latest version:', formattedVersion);
-      return formattedVersion;
-    } catch (error) {
-      console.error('Error fetching the last commit message:', error);
-    } 
-  }
+      const files = await response.json();
+      const versionRegex = /(v\d+\.\d+\.\d+)\.bin/; // Regex to extract version from file name
 
-  function formatVersion(commitMessage) {
-    const versionRegex = /(v\d+\.\d+\.\d+)/; // Regex to match the version number
-    const match = commitMessage.match(versionRegex);
-    if (match && match[1]) {
-      return match[1] + '.0'; // Append '.0' to the matched version number
+      let versions = files
+        .map(file => {
+          const match = file.name.match(versionRegex);
+          return match ? match[1] : null;
+        })
+        .filter(version => version !== null)
+        .map(version => formatVersion(version)) // Apply formatVersion to each version
+        .sort((a, b) => b.localeCompare(a)); // Sort versions in descending order
+        console.log("Latest Version: ",versions[0]);
+
+      return versions[0]; // Return the latest version
+    } catch (error) {
+      console.error('Error fetching the latest version:', error);
     }
-    return null; // Return null if no version number is found
-  }
+}
+
+
+  function formatVersion(version) {
+    const versionRegex = /(v\d+\.\d+\.\d+)/; 
+    const match = version.match(versionRegex);
+    if (match && match[1]) {
+      return match[1] + '.0.0'; // Append '.0.0' to match the desired format
+    }
+    return null; 
+}
 
   
 
@@ -413,11 +427,11 @@ const P2Pserver = (props) => {
 
   function askToDownloadServer() {
       const downloadLink = document.createElement('a');
-      downloadLink.href = 'https://drive.google.com/file/d/1d6BukgkaE0Cdv99Syh71MiEWt3obfvbu/view?usp=drive_link';
+      downloadLink.href = 'https://drive.google.com/file/d/1DDby0lzLrguJMEwychX_WhpnfE4GWjsX/view?usp=sharing';
       document.body.appendChild(downloadLink);
       downloadLink.click();
       document.body.removeChild(downloadLink);
-      alert('Please click on the downloaded "my-server.exe" file to run the server.');
+      alert('Please click on the downloaded "upload-cubeprogrammer-server.exe" file to run the server.');
 
   }
 
@@ -425,36 +439,10 @@ const P2Pserver = (props) => {
 
   async function downloadByCubeProgrammerCLI() {
     try {
-      let githubRawUrl;
-      let appName;
-      switch (selectedApp) {  //ni nanti tukar ikut diorang buat macam mana  buat github univers upload
-        case 'app0':
-          githubRawUrl = 'https://api.github.com/repos/STMicroelectronics/' +
-          'STM32CubeWBA/contents/Projects/NUCLEO-WBA55CG/Applications/' +
-          'BLE/BLE_p2pServer/Binary/BLE_p2pServer.bin';
-          appName = 'Peer2PeerServer';
-          break;
-
-        case 'app1':
-          appName = 'HealthThermometer';
-          break;
-
-        case 'app2':
-          githubRawUrl = 'https://api.github.com/repos/STMicroelectronics/' +
-          'STM32CubeWBA/contents/Projects/NUCLEO-WBA55CG/Applications/' +
-          'BLE/BLE_HeartRate/Binary/BLE_HeartRate.bin';
-          appName = 'HeartRate';
-          break;
-
-        case 'app3':
-          appName = 'DataThroughput';
-          break;
-        default:
-          throw new Error('Invalid application selection');
-      }
-      
-      const version = await getLastCommitMessage(); 
-      const binaryFileName = `${appName}v${version}.bin`;
+      const selectedVersion = document.getElementById('selectedVersion').value;
+      const appName = appFolderMap[selectedApp]; // Use the mapping to get the folder name
+      const binaryFileName = `${appName}v${selectedVersion}.bin`;
+      const githubRawUrl = `https://api.github.com/repos/kenzarul/STM32WBA_Binaries/contents/${appName}/${binaryFileName}`;
       const apiResponse = await fetch(githubRawUrl);
       if (!apiResponse.ok) {
         throw new Error(`Failed to fetch the binary file metadata: ${apiResponse.statusText}`);
@@ -503,35 +491,61 @@ const P2Pserver = (props) => {
     } else if (selectedWay === 'ota') {
       downloadByOTA();
     } else {
-      // Handle the case where no method is selected or an unknown method is selected
+    
       alert('Please select a method for uploading.');
     }
   }
   
 
-  function updateVersionOptions(selectedApp) {
-    const versionSelect = document.getElementById('selectedVersion');
-    const versions = {
-      'app0': ['v1.4.0.0', 'v1.3.0.0'],
-      'app1': ['v1.4.0.0'],
-      'app2': ['v1.4.0.0', 'v1.3.0.0', 'v1.2.0.0'],
-      'app3': ['v1.4.0.0', 'v1.3.0.0'],
-      // Add other apps and their versions as needed
-    };
+  const githubBaseUrl = 'https://api.github.com/repos/kenzarul/STM32WBA_Binaries/contents/';
+
+  // Map your internal app names to the corresponding folder names in the GitHub repository
+  const appFolderMap = {
+    'app0': 'BLE_p2pServer',
+    'app1': 'BLE_HealthThermometer',
+    'app2': 'BLE_HeartRate',
+    'app3': 'BLE_DataThroughput_Server',
+    // Add more mappings as needed
+  };
   
-    // Clear existing options
-    versionSelect.innerHTML = '';
+  async function updateVersionOptions(selectedApp) {
+    const folderName = appFolderMap[selectedApp];
+    if (!folderName) {
+      console.error('Invalid application selection');
+      return;
+    }
   
-    // Add new options based on the selected app
-    versions[selectedApp].forEach(version => {
-      const option = document.createElement('option');
-      option.value = version;
-      option.textContent = version;
-      versionSelect.appendChild(option);
-    });
+    const url = `${githubBaseUrl}${folderName}`;
+    try {
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`GitHub API responded with status code ${response.status}`);
+      }
+      const files = await response.json();
+      const versionRegex = /v(\d+\.\d+\.\d+)\.bin/; // Regex to extract version from file name
+  
+      const versions = files
+        .map(file => {
+          const match = file.name.match(versionRegex);
+          return match ? match[1] : null;
+        })
+        .filter(version => version !== null);
+  
+      const versionSelect = document.getElementById('selectedVersion');
+      versionSelect.innerHTML = ''; // Clear existing options
+  
+      versions.forEach(version => {
+        const option = document.createElement('option');
+        option.value = version;
+        option.textContent = "v"+version;
+        versionSelect.appendChild(option);
+      });
+    } catch (error) {
+      console.error('Error fetching the list of versions:', error);
+    }
   }
 
-  // Enable Light image handler
+
   async function onEnableLightClick() {
     let imgStatus = document.getElementById('imageLightPink').getAttribute('src')
     let myWord;
@@ -624,6 +638,7 @@ const P2Pserver = (props) => {
     </Popover>
   );
 
+
   return (
       <div className="container-fluid">
         <div className="tempPannel">
@@ -631,10 +646,14 @@ const P2Pserver = (props) => {
           <div className="ALL__container">
           <div className="main-content">
 
+          {showCharacteristicDescription && (
+
+          <div>
           <div className="Char_titlebox">
             <h3><strong>Characteristic Description</strong></h3>
           </div>
           
+
           <div class="Char__container container grid">
 
             <div class="Chartitle__card2">
@@ -676,7 +695,8 @@ const P2Pserver = (props) => {
             <tr id="versionupdate" style={{display: 'none'}}><th className='InfoTableTd'>The latest version of the application is available.</th></tr>
             </tbody>
           </table>
-        
+          </div>
+        )}
         <div className="container">
           <div className='row justify-content-center mt-3'>
             <div className='col-xs-6 col-sm-6 col-md-4 col-lg-4 m-2'>
@@ -786,9 +806,7 @@ const P2Pserver = (props) => {
 
       <div class="Chartitle__card6">
           <select id="selectedVersion">
-            <option value="v1.4.0.0" selected>v1.4.0.0</option>
-            <option value="v1.3.0.0">v1.3.0.0</option>
-            <option value="v1.2.0.0">v1.2.0.0</option>
+            <option disabled selected>Choose app first</option>
           </select>
         </div>
 

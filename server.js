@@ -27,22 +27,22 @@ const storage = multer.diskStorage({
   const upload = multer({ storage: storage });
 
 
-app.post('/upload', upload.single('binaryFile'), (req, res) => {  
-    const filePath = req.file.path
-    const uploadDir = path.dirname(filePath); 
+  app.post('/upload', upload.single('binaryFile'), (req, res) => {  
+    const filePath = req.file.path;
+    const uploadDir = path.dirname(filePath);
 
     const programmerPath = req.body.programmerPath || 'C:\\Program Files\\STMicroelectronics\\STM32Cube\\STM32CubeProgrammer\\bin\\STM32_Programmer_CLI.exe';
 
-
     const flashCommand = `"${programmerPath}" ` +
-                       `--connect port=SWD ` +
-                       `-d "${filePath}" ` +
-                       `0x08000000`;
+                         `-c port=SWD reset=HWrst ` +
+                         `-d "${filePath}" ` +
+                         `0x08000000 -v -HardRst`;
 
     exec(flashCommand, (error, stdout, stderr) => {
       if (error) {
         console.error('Flash command failed:', error);
-        res.status(500).send('Flash command failed');
+        console.error('Standard error output (stderr):', stdout); // Log standard error output
+        res.status(500).send(`Flash command failed: ${stderr}`); // Send stderr in the response
         return;
       }
       console.log('Flash command output:', stdout);
@@ -55,8 +55,7 @@ app.post('/upload', upload.single('binaryFile'), (req, res) => {
       });
       res.send('File uploaded and flashed successfully');
     });
-  });
-
+});
 
 
 app.listen(port, () => {
