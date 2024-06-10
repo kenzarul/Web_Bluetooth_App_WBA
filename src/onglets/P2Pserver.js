@@ -93,10 +93,10 @@ const P2Pserver = (props) => {
     createLogElement(statusWord, 1, "P2Pserver READ");
   }
 
+  //Start Characteristics And Upload Sections
   useEffect(() => {
     if (characteristicFound) {
       setShowCharacteristicDescription(true);
-      // Call readInfoDevice or any other function that depends on the characteristic
       readInfoDevice();
     }
   }, []);
@@ -370,7 +370,7 @@ const P2Pserver = (props) => {
         throw new Error(`GitHub API responded with status code ${response.status}`);
       }
       const files = await response.json();
-      const versionRegex = /(v\d+\.\d+\.\d+)\.bin/; // Regex to extract version from file name
+      const versionRegex = /(v\d+\.\d+\.\d+)\.bin/;
 
       let versions = files
         .map(file => {
@@ -378,11 +378,11 @@ const P2Pserver = (props) => {
           return match ? match[1] : null;
         })
         .filter(version => version !== null)
-        .map(version => formatVersion(version)) // Apply formatVersion to each version
-        .sort((a, b) => b.localeCompare(a)); // Sort versions in descending order
+        .map(version => formatVersion(version)) 
+        .sort((a, b) => b.localeCompare(a)); 
         console.log("Latest Version: ",versions[0]);
 
-      return versions[0]; // Return the latest version
+      return versions[0];
     } catch (error) {
       console.error('Error fetching the latest version:', error);
     }
@@ -393,7 +393,7 @@ const P2Pserver = (props) => {
     const versionRegex = /(v\d+\.\d+\.\d+)/; 
     const match = version.match(versionRegex);
     if (match && match[1]) {
-      return match[1] + '.0.0'; // Append '.0.0' to match the desired format
+      return match[1] + '.0.0'; 
     }
     return null; 
 }
@@ -426,21 +426,21 @@ const P2Pserver = (props) => {
   }
 
   function askToDownloadServer() {
-      const downloadLink = document.createElement('a');
-      downloadLink.href = 'https://drive.google.com/file/d/1DDby0lzLrguJMEwychX_WhpnfE4GWjsX/view?usp=sharing';
-      document.body.appendChild(downloadLink);
-      downloadLink.click();
-      document.body.removeChild(downloadLink);
-      alert('Please click on the downloaded "upload-cubeprogrammer-server.exe" file to run the server.');
-
-  }
+    const downloadLink = document.createElement('a');
+    downloadLink.href = 'https://github.com/kenzarul/Web_Bluetooth_App_WBA/raw/main/upload-cubeprogrammer-server.exe';
+    downloadLink.setAttribute('download', ''); 
+    document.body.appendChild(downloadLink);
+    downloadLink.click();
+    document.body.removeChild(downloadLink);
+    alert('Please click on the downloaded "upload-cubeprogrammer-server.exe" file to run the server.');
+}
 
 
 
   async function downloadByCubeProgrammerCLI() {
     try {
       const selectedVersion = document.getElementById('selectedVersion').value;
-      const appName = appFolderMap[selectedApp]; // Use the mapping to get the folder name
+      const appName = appFolderMap[selectedApp];
       const binaryFileName = `${appName}v${selectedVersion}.bin`;
       const githubRawUrl = `https://api.github.com/repos/kenzarul/STM32WBA_Binaries/contents/${appName}/${binaryFileName}`;
       const apiResponse = await fetch(githubRawUrl);
@@ -499,13 +499,12 @@ const P2Pserver = (props) => {
 
   const githubBaseUrl = 'https://api.github.com/repos/kenzarul/STM32WBA_Binaries/contents/';
 
-  // Map your internal app names to the corresponding folder names in the GitHub repository
   const appFolderMap = {
     'app0': 'BLE_p2pServer',
     'app1': 'BLE_HealthThermometer',
     'app2': 'BLE_HeartRate',
     'app3': 'BLE_DataThroughput_Server',
-    // Add more mappings as needed
+    
   };
   
   async function updateVersionOptions(selectedApp) {
@@ -522,7 +521,7 @@ const P2Pserver = (props) => {
         throw new Error(`GitHub API responded with status code ${response.status}`);
       }
       const files = await response.json();
-      const versionRegex = /v(\d+\.\d+\.\d+)\.bin/; // Regex to extract version from file name
+      const versionRegex = /v(\d+\.\d+\.\d+)\.bin/; 
   
       const versions = files
         .map(file => {
@@ -532,7 +531,7 @@ const P2Pserver = (props) => {
         .filter(version => version !== null);
   
       const versionSelect = document.getElementById('selectedVersion');
-      versionSelect.innerHTML = ''; // Clear existing options
+      versionSelect.innerHTML = ''; 
   
       versions.forEach(version => {
         const option = document.createElement('option');
@@ -544,6 +543,7 @@ const P2Pserver = (props) => {
       console.error('Error fetching the list of versions:', error);
     }
   }
+  //End Characteristics And Upload Sections
 
 
   async function onEnableLightClick() {
@@ -644,59 +644,62 @@ const P2Pserver = (props) => {
         <div className="tempPannel">
 
           <div className="ALL__container">
-          <div className="main-content">
+            <div className="main-content">
 
-          {showCharacteristicDescription && (
+              {showCharacteristicDescription && (
 
-          <div>
-          <div className="Char_titlebox">
-            <h3><strong>Characteristic Description</strong></h3>
-          </div>
+              <div>
+
+                <div className="Char_titlebox">
+                  <h3><strong>Characteristic Description</strong></h3>
+                </div>
           
 
-          <div class="Char__container container grid">
+                  <div class="Char__container container grid">
 
-            <div class="Chartitle__card2">
-              <div class="Char__container2 container grid">
-                <div>
-                  <img src={deviceType === 'DK1 WBA' ? dk1 : nucleo} alt="" className="boardImage"></img>
-                </div>
-                <div>
-                  <br></br>
-                  <h1><span id='dev' ></span></h1>
-                  <hr class="divider"></hr>
-                  <h3><span id='revs' > </span></h3>
-                  <h3><span id='hwp' > </span></h3>
-                  <br></br>
-                </div>
-              </div>
-            </div>
+                    <div class="Chartitle__card2">
+                      <div class="Char__container2 container grid">
+                        <div>
+                          <img src={deviceType === 'DK1 WBA' ? dk1 : nucleo} alt="" className="boardImage"></img>
+                        </div>
+                        <div>
+                          <br></br>
+                          <h1><span id='dev' ></span></h1>
+                          <hr class="divider"></hr>
+                          <h3><span id='revs' > </span></h3>
+                          <h3><span id='hwp' > </span></h3>
+                          <br></br>
+                        </div>
+                      </div>
+                    </div>
 
-            <div>
-            <div class="Chartitle__card3">
-            <div class="header-content">
-              <img src={bluetooth} alt="" className="bluetoothLogo">
-              </img><h1><span id='apps' > </span></h1>
-            </div>
-              <h3><span id='appvs' > </span></h3>
-            </div>
-            <div class="Chartitle__card4">
-              <h3><span id='hsvs1' > </span></h3>
-              <h3><span id='hsvs2' > </span></h3>
-            </div>
-            </div>
+                    <div>
+                      <div class="Chartitle__card3">
+                        <div class="header-content">
+                          <img src={bluetooth} alt="" className="bluetoothLogo">
+                          </img><h1><span id='apps' > </span></h1>
+                        </div>
+                        <h3><span id='appvs' > </span></h3>
+                      </div>
 
-          </div>
+                      <div class="Chartitle__card4">
+                        <h3><span id='hsvs1' > </span></h3>
+                        <h3><span id='hsvs2' > </span></h3>
+                      </div>
+                    </div>
 
-          <table className='InfoTable'>
-            <tbody>
-            <tr><th className='InfoTableTh'><box-icon name='info-circle' size='sm' type='solid' color='white' class='infoLogo' ></box-icon> Information</th></tr>
-            <tr id="versionrecent" style={{display: 'none'}}><th className='InfoTableTd'>This is the latest version of the application.</th></tr>
-            <tr id="versionupdate" style={{display: 'none'}}><th className='InfoTableTd'>The latest version of the application is available.</th></tr>
-            </tbody>
-          </table>
-          </div>
-        )}
+                  </div>
+
+                <table className='InfoTable'>
+                  <tbody>
+                    <tr><th className='InfoTableTh'><box-icon name='info-circle' size='sm' type='solid' color='white' class='infoLogo' ></box-icon> Information</th></tr>
+                    <tr id="versionrecent" style={{display: 'none'}}><th className='InfoTableTd'>This is the latest version of the application.</th></tr>
+                    <tr id="versionupdate" style={{display: 'none'}}><th className='InfoTableTd'>The latest version of the application is available.</th></tr>
+                  </tbody>
+                </table>
+             </div>
+            )}
+
         <div className="container">
           <div className='row justify-content-center mt-3'>
             <div className='col-xs-6 col-sm-6 col-md-4 col-lg-4 m-2'>
@@ -769,80 +772,84 @@ const P2Pserver = (props) => {
           </div>
           </div>
           </div>
+
           <div className="sidebar">
             <div class="Chartitle__card5">
-             <h1>Select The Available Application</h1>
+              <h1>Select The Available Application</h1>
+
              <div class="custom-divider"></div>
 
              <div class="app-list-container">
-             <label className={`app-list-item ${selectedApp === 'app0' ? 'active' : ''}`}>
-          <input type="radio" name="application" value="app0" checked={selectedApp === 'app0'}  onChange={() => { setSelectedApp('app0'); updateVersionOptions('app0'); setSelectedApp('app0'); updateVersionOptions('app0');}} />
-          <img src={p2pslogo} className="appsLogo"></img>
-          <a href="https://wiki.st.com/stm32mcu/wiki/Connectivity:STM32WBA_Peer_To_Peer" target="_blank" className="app-list-link">
-          <span className="app-list-text">Peer2Peer Server</span></a></label>
 
-            <label className={`app-list-item ${selectedApp === 'app1' ? 'active' : ''}`}>
-          <input type="radio" name="application" value="app1" checked={selectedApp === 'app1'}  onChange={() => { setSelectedApp('app1'); updateVersionOptions('app1');setSelectedApp('app1'); updateVersionOptions('app1'); }} />
-          <img src={htlogo} className="appsLogo"></img>
-          <a href="https://wiki.st.com/stm32mcu/wiki/Connectivity:STM32WBA_Health_Thermometer" target="_blank" className="app-list-link">
-          <span className="app-list-text">Health Temperature</span></a></label>
+              <label className={`app-list-item ${selectedApp === 'app0' ? 'active' : ''}`}>
+              <input type="radio" name="application" value="app0" checked={selectedApp === 'app0'}  onChange={() => { setSelectedApp('app0'); updateVersionOptions('app0'); setSelectedApp('app0'); updateVersionOptions('app0');}} />
+              <img src={p2pslogo} className="appsLogo"></img>
+              <a href="https://wiki.st.com/stm32mcu/wiki/Connectivity:STM32WBA_Peer_To_Peer" target="_blank" className="app-list-link">
+              <span className="app-list-text">Peer2Peer Server</span></a></label>
 
-        <label className={`app-list-item ${selectedApp === 'app2' ? 'active' : ''}`}>
-          <input type="radio" name="application" value="app2" checked={selectedApp === 'app2'} onChange={() => { setSelectedApp('app2'); updateVersionOptions('app2'); setSelectedApp('app2'); updateVersionOptions('app2');}}/>
-          <img src={hrlogo} className="appsLogo"></img>
-          <a href="https://wiki.st.com/stm32mcu/wiki/Connectivity:STM32WBA_HeartRate" target="_blank" className="app-list-link">
-          <span className="app-list-text">Heart Rate</span></a></label>
+              <label className={`app-list-item ${selectedApp === 'app1' ? 'active' : ''}`}>
+              <input type="radio" name="application" value="app1" checked={selectedApp === 'app1'}  onChange={() => { setSelectedApp('app1'); updateVersionOptions('app1');setSelectedApp('app1'); updateVersionOptions('app1'); }} />
+              <img src={htlogo} className="appsLogo"></img>
+              <a href="https://wiki.st.com/stm32mcu/wiki/Connectivity:STM32WBA_Health_Thermometer" target="_blank" className="app-list-link">
+              <span className="app-list-text">Health Temperature</span></a></label>
 
-        <label className={`app-list-item ${selectedApp === 'app3' ? 'active' : ''}`}>
-          <input type="radio" name="application" value="app3" checked={selectedApp === 'app3'} onChange={() => { setSelectedApp('app3'); updateVersionOptions('app3');setSelectedApp('app3'); updateVersionOptions('app3'); }}/>
-          <img src={dtlogo} className="appsLogo"></img>
-          <a href="https://wiki.st.com/stm32mcu/wiki/Connectivity:STM32WBA_Data_Throughput" target="_blank" className="app-list-link">
-          <span className="app-list-text">Data Throughput</span></a></label>
-      </div>
+              <label className={`app-list-item ${selectedApp === 'app2' ? 'active' : ''}`}>
+              <input type="radio" name="application" value="app2" checked={selectedApp === 'app2'} onChange={() => { setSelectedApp('app2'); updateVersionOptions('app2'); setSelectedApp('app2'); updateVersionOptions('app2');}}/>
+              <img src={hrlogo} className="appsLogo"></img>
+              <a href="https://wiki.st.com/stm32mcu/wiki/Connectivity:STM32WBA_HeartRate" target="_blank" className="app-list-link">
+              <span className="app-list-text">Heart Rate</span></a></label>
 
-      <div class="custom-divider"></div>
+              <label className={`app-list-item ${selectedApp === 'app3' ? 'active' : ''}`}>
+              <input type="radio" name="application" value="app3" checked={selectedApp === 'app3'} onChange={() => { setSelectedApp('app3'); updateVersionOptions('app3');setSelectedApp('app3'); updateVersionOptions('app3'); }}/>
+              <img src={dtlogo} className="appsLogo"></img>
+              <a href="https://wiki.st.com/stm32mcu/wiki/Connectivity:STM32WBA_Data_Throughput" target="_blank" className="app-list-link">
+              <span className="app-list-text">Data Throughput</span></a></label>
 
-      <h1>Select The Available Version</h1>
+              </div>
 
-      <div class="Chartitle__card6">
-          <select id="selectedVersion">
-            <option disabled selected>Choose app first</option>
-          </select>
-        </div>
+              <div class="custom-divider"></div>
 
-      <div class="custom-divider"></div>
+              <h1>Select The Available Version</h1>
 
-      <h1>Upload by :</h1>
+              <div class="Chartitle__card6">
+                <select id="selectedVersion">
+                <option disabled selected>Choose app first</option>
+                </select>
+              </div>
 
-      <div class="way-list-container">
+              <div class="custom-divider"></div>
 
-          <label className={`way-list-item ${selectedWay=== 'cubeCLI' ? 'active' : ''}`}>
-          <input type="radio" name="way" value="cubeCLI" checked={selectedWay === 'cubeCLI'}  onChange={() => setSelectedWay('cubeCLI')} />
-          <span className="way-list-text">STM32CubeProgrammer CLI</span></label>
+              <h1>Upload by :</h1>
 
-          <label className={`way-list-item ${selectedWay=== 'ota' ? 'active' : ''}`}>
-          <input type="radio" name="way" value="ota" checked={selectedWay === 'ota'}  onChange={() => setSelectedWay('ota')} />
-          <span className="way-list-text">OTA</span></label>
+              <div class="way-list-container">
 
-      </div>
+                <label className={`way-list-item ${selectedWay=== 'cubeCLI' ? 'active' : ''}`}>
+                <input type="radio" name="way" value="cubeCLI" checked={selectedWay === 'cubeCLI'}  onChange={() => setSelectedWay('cubeCLI')} />
+                <span className="way-list-text">STM32CubeProgrammer CLI</span></label>
 
-      <div class="custom-divider"></div>
+                <label className={`way-list-item ${selectedWay=== 'ota' ? 'active' : ''}`}>
+                <input type="radio" name="way" value="ota" checked={selectedWay === 'ota'}  onChange={() => setSelectedWay('ota')} />
+                <span className="way-list-text">OTA</span></label>
 
-        <h1>Install And Open The Server First Before Uploading A New Application</h1>
+              </div>
 
-        <div className="Charbuttitle__card">
-        <button onClick={askToDownloadServer}>Install Server</button>
-        </div>
+              <div class="custom-divider"></div>
 
-      <div class="custom-divider"></div>
+              <h1>Install And Open The Server First Before Uploading A New Application</h1>
 
-      <div className="Charbuttitle__card">
-        <button onClick={handleDownloadClick}>Upload App</button>
-      </div>
+              <div className="Charbuttitle__card">
+                <button onClick={askToDownloadServer}>Install Server</button>
+              </div>
+
+              <div class="custom-divider"></div>
+
+              <div className="Charbuttitle__card">
+                <button onClick={handleDownloadClick}>Upload App</button>
+              </div>
 
             </div>
-            </div>
-            </div>
+          </div>
+          </div>
         </div>
       </div>
      
