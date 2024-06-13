@@ -1484,6 +1484,17 @@ img {
 	
 }
 
+
+.InfoTableTd2{
+	color: #03234B;
+    background-color: #BDC5D0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding-inline-start: 1.5rem;
+	
+	
+}
 .Char_titlebox {
 	width: 93%;
 	height: 50px;
@@ -1525,7 +1536,7 @@ img {
 }
 
 .Chartitle__card2{
-	border: grey solid 4px;
+	border: #03234B solid 4px;
 	
 	margin-left: 20px;
 	border-radius: 1rem;
@@ -1541,7 +1552,7 @@ img {
 .Chartitle__card2 h3{
 	font-size: 18px;
 	font-weight: bold;
-	color: grey;
+	color: #03234B;
 }
 
 .Chartitle__card2 h1{
@@ -1567,7 +1578,7 @@ img {
 
 
 .Chartitle__card3{
-	border: grey solid 4px;
+	border: #03234B solid 4px;
 	padding: 0.3rem;
 	border-radius: 1rem;
 	width: 74%;
@@ -1585,7 +1596,7 @@ img {
 .Chartitle__card3 h3{
 	font-size: 18px;
 	font-weight: bold;
-	color: grey;
+	color: #03234B;
 	text-align: left;
 	padding-left: 0.5rem;
 }
@@ -1605,7 +1616,7 @@ img {
 }
 
 .Chartitle__card4{
-	border: grey solid 4px;
+	border: #03234B solid 4px;
 	padding: 0.3rem;
 	border-radius: 1rem;
 
@@ -1619,7 +1630,7 @@ img {
 .Chartitle__card4 h3{
 	font-size: 18px;
 	font-weight: bold;
-	color: grey;
+	color: #03234B;
 	text-align: left;
 	padding-left: 0.5rem;
 	margin-top: 7px;
@@ -1674,8 +1685,8 @@ img {
 	height: 3px; 
 	background-color: grey;
 	width: 100%; 
-	margin-top: 10px;
-	margin-bottom: 10px;
+	margin-top: 5px;
+	margin-bottom: 5px;
   }
 
 .Chartitle__card5 h1{
@@ -1718,21 +1729,40 @@ img {
 	padding: 0.1rem;
 	
   }
+  .Charbuttitle__card2 {
+	background-color: #03234B;
+	border-radius: 1rem;
+	margin-bottom: 7px;
+	margin-top: 7px;
+	width: 30%;
 
-  .Charbuttitle__card:hover {
+  }
+  
+  .Charbuttitle__card2 button {
+	font-size: 17px; 
+	color: white;
+	font-weight: bold;
+	background-color: #03234B;  
+	border: none; 
+	cursor: pointer; 
+	padding: 0.1rem;
+	
+  }
+
+  .Charbuttitle__card2:hover, .Charbuttitle__card:hover {
 	border: #E6007E solid 1px;
 	background-color: #E6007E;
 }
 
-.Charbuttitle__card:hover button {
+.Charbuttitle__card2:hover button,.Charbuttitle__card:hover button {
 	border: #E6007E solid 1px;
 	background-color: #E6007E;
 }
 
 .app-list-container {
-	background-color: white;
-
-	max-height: 100vh;
+	background-color: transparent;
+	height: 150px; 
+	overflow-y: auto;
 
   }
   
@@ -1789,12 +1819,12 @@ img {
   
   .sidebar .Chartitle__card5 {
 	width: 310px;
+	padding: 0.2rem; 
+ 	margin: 5px;
  }
 
   .sidebar {
-	position: sticky; 
-	top: 60%; 
-	transform: translateY(-40%);
+
 	height: auto; 
   }
 
@@ -1803,7 +1833,7 @@ img {
 	flex-direction: row;
 	align-items: flex-start;
 	justify-content: flex-start; 
-	height: 100vh;
+	height: 100%;
 	margin-right: 0;
 	padding-right: 0; 
   }
@@ -1826,7 +1856,7 @@ img {
   }
 
   .way-list-container {
-	background-color: white;
+	background-color: transparent;
 
 	max-height: 100vh;
 
