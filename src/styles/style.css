@@ -1858,6 +1858,15 @@ img {
 	cursor: pointer; 
   }
 
+  .disabled {
+	color: grey;
+	cursor: not-allowed;
+  }
+
+  .logo-disabled {
+	filter: grayscale(100%); 
+	opacity: 0.5; 
+  }
 
 
   @media (max-width: 1250px)  {

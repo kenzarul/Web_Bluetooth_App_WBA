@@ -24,6 +24,24 @@ let showAllDevices = false;
 
 const Header = (props) => {
 
+    const [deviceDescription, setDeviceDescription] = useState('');
+
+    const readNewCharacteristic = (characteristics) => {
+        const newChar = characteristics.find(char => char.uuid === "0000fe31-8e22-4541-9d4c-21edae82ed19");
+        if (newChar) {
+            newChar.readValue().then(value => {
+                // Process the value here
+                console.log("Found you");
+                // Additional processing and state updates can go here
+            }).catch(error => {
+                console.error('Error reading the new characteristic:', error);
+            });
+        } else {
+            console.log("NOT Found you");
+        }
+    };
+
+
     function connection() {
         console.log('Requesting Bluetooth Device...');
         if(showAllDevices == false){
@@ -54,7 +72,7 @@ const Header = (props) => {
                     namePrefix: "CGM_"            // BLE_ContinuousGlucoseMonitoring
                 }],
 
-                optionalServices: ['0000fe40-cc7a-482a-984a-7f2ed5b3e58f', '0000180d-0000-1000-8000-00805f9b34fb','0000fe80-cc7a-482a-984a-7f2ed5b3e58f','0000fe80-8e22-4541-9d4c-21edae82fe80','0000fe20-cc7a-482a-984a-7f2ed5b3e58f', '0000feb0-cc7a-482a-984a-7f2ed5b3e58f', '00001809-0000-1000-8000-00805f9b34fb','00001810-0000-1000-8000-00805f9b34fb','0000181d-0000-1000-8000-00805f9b34fb','00001814-0000-1000-8000-00805f9b34fb','0000181f-0000-1000-8000-00805f9b34fb'] // service uuid of [P2P service, Heart Rate service, DataThroughput, Ota, P2P Router, Health Thermomiter, Blood Pressure, Weight Scale, Running Speed and Cadence, Continuous Glucose Monitoring]
+                optionalServices: ['00001800-0000-1000-8000-00805f9b34fb','0000fe40-cc7a-482a-984a-7f2ed5b3e58f', '0000180d-0000-1000-8000-00805f9b34fb','0000fe80-cc7a-482a-984a-7f2ed5b3e58f','0000fe80-8e22-4541-9d4c-21edae82fe80','0000fe20-cc7a-482a-984a-7f2ed5b3e58f', '0000feb0-cc7a-482a-984a-7f2ed5b3e58f', '00001809-0000-1000-8000-00805f9b34fb','00001810-0000-1000-8000-00805f9b34fb','0000181d-0000-1000-8000-00805f9b34fb','00001814-0000-1000-8000-00805f9b34fb','0000181f-0000-1000-8000-00805f9b34fb'] // service uuid of [P2P service, Heart Rate service, DataThroughput, Ota, P2P Router, Health Thermomiter, Blood Pressure, Weight Scale, Running Speed and Cadence, Continuous Glucose Monitoring]
             }) 
                 .then(device => { 
                     myDevice = device;
@@ -92,6 +110,7 @@ const Header = (props) => {
                                     console.log('HEADER - >> Characteristic: ' + characteristic.uuid + ' ' + getSupportedProperties(characteristic));
                                     createLogElement(characteristic, 4 , 'CHARACTERISTIC')
                                 });
+                                readNewCharacteristic(characteristics);
                             }));
                            });
                     let buttonConnect = document.getElementById('connectButton');
@@ -234,11 +253,6 @@ const Header = (props) => {
         </div>
     );
 };
-
-
-
-
-
 
 
 function checkBoxDeviceFilter() {

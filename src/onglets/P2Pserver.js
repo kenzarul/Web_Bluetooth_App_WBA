@@ -357,8 +357,6 @@ const P2Pserver = (props) => {
       versionRecentRow.style.display = 'none';
       versionUpdateRow.style.display = '';
     }
-
-    
   
   }
 
@@ -397,7 +395,6 @@ const P2Pserver = (props) => {
     }
     return null; 
 }
-
   
 
   function isLatestVersion(current, latest) {
@@ -414,11 +411,32 @@ const P2Pserver = (props) => {
     return true;
   }
 
+  const isOtaSelected = selectedWay === 'ota';
+  const isAppDisabledForOta = (app) => isOtaSelected && (app === 'app1' || app === 'app3');
 
+  const handleSetSelectedWay = (way) => {
+    setSelectedWay(way);
+
+    if (way !== selectedWay) {
+
+      setSelectedApp('');
+      const versionSelect = document.getElementById('selectedVersion');
+      versionSelect.innerHTML = '<option disabled selected>Choose app first</option>';
+    }
+    
+    if (way === 'ota' && (selectedApp === 'app1' || selectedApp === 'app3')) {
+      setSelectedApp('');
+    }
+
+    if (way === 'cubeCLI') {
+      setSelectedApp('');
+    }
+  };
 
   function updateDeviceType(type) {
     setDeviceType(type);
   }
+  
 
 
   function promptForProgrammerPath() {
@@ -504,17 +522,20 @@ const P2Pserver = (props) => {
     'app1': 'BLE_HealthThermometer',
     'app2': 'BLE_HeartRate',
     'app3': 'BLE_DataThroughput_Server',
+    'app0_ota': 'BLE_p2pServer_ota',
+    'app2_ota': 'BLE_HeartRate_ota',
     
   };
   
   async function updateVersionOptions(selectedApp) {
-    const folderName = appFolderMap[selectedApp];
+    const folderName = selectedWay === 'ota' ? `${selectedApp}_ota` : selectedApp;
+    const directory = appFolderMap[folderName];
     if (!folderName) {
       console.error('Invalid application selection');
       return;
     }
   
-    const url = `${githubBaseUrl}${folderName}`;
+    const url = `${githubBaseUrl}${directory}`;
     try {
       const response = await fetch(url);
       if (!response.ok) {
@@ -775,6 +796,24 @@ const P2Pserver = (props) => {
 
           <div className="sidebar">
             <div class="Chartitle__card5">
+              
+              <h1>Choose The Upload Method :</h1>
+
+              <div class="custom-divider"></div>
+
+              <div class="way-list-container">
+
+                <label className={`way-list-item ${selectedWay=== 'cubeCLI' ? 'active' : ''}`}>
+                <input type="radio" name="way" value="cubeCLI" checked={selectedWay === 'cubeCLI'}  onChange={() => handleSetSelectedWay('cubeCLI')} />
+                <span className="way-list-text">STM32CubeProgrammer CLI</span></label>
+
+                <label className={`way-list-item ${selectedWay=== 'ota' ? 'active' : ''}`}>
+                <input type="radio" name="way" value="ota" checked={selectedWay === 'ota'}  onChange={() => handleSetSelectedWay('ota')}  />
+                <span className="way-list-text">OTA</span></label>
+
+              </div>
+
+              <div class="custom-divider"></div>
               <h1>Select The Available Application</h1>
 
              <div class="custom-divider"></div>
@@ -787,11 +826,11 @@ const P2Pserver = (props) => {
               <a href="https://wiki.st.com/stm32mcu/wiki/Connectivity:STM32WBA_Peer_To_Peer" target="_blank" className="app-list-link">
               <span className="app-list-text">Peer2Peer Server</span></a></label>
 
-              <label className={`app-list-item ${selectedApp === 'app1' ? 'active' : ''}`}>
-              <input type="radio" name="application" value="app1" checked={selectedApp === 'app1'}  onChange={() => { setSelectedApp('app1'); updateVersionOptions('app1');setSelectedApp('app1'); updateVersionOptions('app1'); }} />
-              <img src={htlogo} className="appsLogo"></img>
+              <label className={`app-list-item ${selectedApp === 'app1' ? 'active' : ''} ${isAppDisabledForOta('app1') ? 'disabled' : ''}`}>
+              <input type="radio" name="application" value="app1" checked={selectedApp === 'app1'} disabled={isAppDisabledForOta('app1')}  onChange={() => { setSelectedApp('app1'); updateVersionOptions('app1');setSelectedApp('app1'); updateVersionOptions('app1'); }} />
+              <img src={htlogo} className={`appsLogo ${isAppDisabledForOta('app1') ? 'logo-disabled' : ''}`}></img>
               <a href="https://wiki.st.com/stm32mcu/wiki/Connectivity:STM32WBA_Health_Thermometer" target="_blank" className="app-list-link">
-              <span className="app-list-text">Health Temperature</span></a></label>
+              <span className={`app-list-text ${isAppDisabledForOta('app1') ? 'disabled' : ''}`}>Health Temperature</span></a></label>
 
               <label className={`app-list-item ${selectedApp === 'app2' ? 'active' : ''}`}>
               <input type="radio" name="application" value="app2" checked={selectedApp === 'app2'} onChange={() => { setSelectedApp('app2'); updateVersionOptions('app2'); setSelectedApp('app2'); updateVersionOptions('app2');}}/>
@@ -799,11 +838,11 @@ const P2Pserver = (props) => {
               <a href="https://wiki.st.com/stm32mcu/wiki/Connectivity:STM32WBA_HeartRate" target="_blank" className="app-list-link">
               <span className="app-list-text">Heart Rate</span></a></label>
 
-              <label className={`app-list-item ${selectedApp === 'app3' ? 'active' : ''}`}>
-              <input type="radio" name="application" value="app3" checked={selectedApp === 'app3'} onChange={() => { setSelectedApp('app3'); updateVersionOptions('app3');setSelectedApp('app3'); updateVersionOptions('app3'); }}/>
-              <img src={dtlogo} className="appsLogo"></img>
+              <label className={`app-list-item ${selectedApp === 'app3' ? 'active' : ''} ${isAppDisabledForOta('app3') ? 'disabled' : ''}`}>
+              <input type="radio" name="application" value="app3" checked={selectedApp === 'app3'} disabled={isAppDisabledForOta('app3')} onChange={() => { setSelectedApp('app3'); updateVersionOptions('app3');setSelectedApp('app3'); updateVersionOptions('app3'); }}/>
+              <img src={dtlogo} className={`appsLogo ${isAppDisabledForOta('app3') ? 'logo-disabled' : ''}`}></img>
               <a href="https://wiki.st.com/stm32mcu/wiki/Connectivity:STM32WBA_Data_Throughput" target="_blank" className="app-list-link">
-              <span className="app-list-text">Data Throughput</span></a></label>
+              <span className={`app-list-text ${isAppDisabledForOta('app3') ? 'disabled' : ''}`}>Data Throughput</span></a></label>
 
               </div>
 
@@ -815,22 +854,6 @@ const P2Pserver = (props) => {
                 <select id="selectedVersion">
                 <option disabled selected>Choose app first</option>
                 </select>
-              </div>
-
-              <div class="custom-divider"></div>
-
-              <h1>Upload by :</h1>
-
-              <div class="way-list-container">
-
-                <label className={`way-list-item ${selectedWay=== 'cubeCLI' ? 'active' : ''}`}>
-                <input type="radio" name="way" value="cubeCLI" checked={selectedWay === 'cubeCLI'}  onChange={() => setSelectedWay('cubeCLI')} />
-                <span className="way-list-text">STM32CubeProgrammer CLI</span></label>
-
-                <label className={`way-list-item ${selectedWay=== 'ota' ? 'active' : ''}`}>
-                <input type="radio" name="way" value="ota" checked={selectedWay === 'ota'}  onChange={() => setSelectedWay('ota')} />
-                <span className="way-list-text">OTA</span></label>
-
               </div>
 
               <div class="custom-divider"></div>
