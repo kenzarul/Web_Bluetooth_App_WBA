@@ -13,9 +13,9 @@
 //  * If no LICENSE file comes with this software, it is provided AS-IS.
 //  *
 //  ******************************************************************************
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Buffer } from 'buffer';
-import { createLogElement } from "../components/Header";
+import { createLogElement, startOtaUpdate} from "../components/Header";
 import { OverlayTrigger, Popover } from 'react-bootstrap';
 import iconInfo from '../images/iconInfo.svg';
 
@@ -53,6 +53,53 @@ const Ota = (props) => {
                 console.log("# No characteristics find..");
         }
     });
+
+    const [githubUrl, setGithubUrl] = useState(localStorage.getItem('githubUrl') || '');
+    const [binaryFileName, setBinaryFileName] = useState(''); // Add state for the file name
+  
+    useEffect(() => {
+      // Define a function to handle the custom event
+      const handleGithubUrlUpdate = (event) => {
+        setGithubUrl(event.detail);
+        // Extract the file name from the URL and update state
+        const fileName = event.detail.split('/').pop();
+        setBinaryFileName(fileName);
+        fetchBinaryFromGitHub(event.detail);
+      };
+  
+      // Add event listener for the custom event
+      window.addEventListener('githubUrlUpdated', handleGithubUrlUpdate);
+  
+      // Perform initial fetch if the URL is already set
+      if (githubUrl) {
+        fetchBinaryFromGitHub(githubUrl);
+        // Extract the file name from the URL and update state
+        const fileName = githubUrl.split('/').pop();
+        setBinaryFileName(fileName);
+      }
+  
+      // Cleanup the event listener on component unmount
+      return () => {
+        window.removeEventListener('githubUrlUpdated', handleGithubUrlUpdate);
+      };
+    }, []);
+  
+ 
+    const fetchBinaryFromGitHub = async (url) => {
+      try {
+        const response = await fetch(url);
+        const data = await response.json();
+        if (data.content) {
+          const binaryContent = Buffer.from(data.content, 'base64');
+          fileContent = new Uint8Array(binaryContent);
+          fileLength = fileContent.length;
+          // ... any additional logic to handle the fetched binary data ...
+        }
+      } catch (error) {
+        console.error("Error fetching binary from GitHub: ", error);
+      }
+    };
+
     
   document.getElementById("readmeInfo").style.display = "none";
    
@@ -175,22 +222,6 @@ const Ota = (props) => {
       }
     }
 
-    // Read the file selected from the file input and upload it
-    async function showFile(input) {
-      console.log("FileLoader")
-      let uploadButton = document.getElementById("uploadButton");
-      uploadButton.disabled = true;
-        fileContent = input.target.files[0];
-        let reader = new FileReader();
-        reader.readAsArrayBuffer(fileContent);
-        reader.onload = async function () {
-            let uint8View = new Uint8Array(reader.result);
-            console.log(uint8View);
-            fileContent = uint8View;
-        }
-        uploadButton.disabled = false;
-    }
-
     async function calculateNbSector(){
       fileLength = fileContent.length;
       nbSector = fileLength/SECTOR_SIZE;
@@ -224,7 +255,7 @@ const Ota = (props) => {
         document.getElementById("userDataSelectFilePart").style="display:none";
         document.getElementById("applicationSelectFilePart").style="display:block";
         uploadAction = "002";
-        actionChoice.value = "07C000";
+        actionChoice.value = "080000";
 
         break;
     }
@@ -305,9 +336,14 @@ const Ota = (props) => {
           </div>
 
           <div id='configDiv'style={{"display": "none"}}>
-            <div className="mt-3 mb-3">
-              <input className="form-control fileInput" type="file" onChange={(e) => showFile(e)}></input>
-            </div> 
+          {githubUrl && (
+
+              <div className="input-group mb-3">
+                 <span className="input-group-text">Selected Binary File</span>
+                 <span className="input-group-text"><strong>{binaryFileName}</strong></span>
+              </div>
+
+          )}
             <div className="input-group mb-3">
               <span className="input-group-text" id="startSectorChoise">Address 0x</span>
               <input type="text" className="form-control" placeholder="..." aria-describedby="startSectorChoise" maxLength="6" id="startSectorInput" ></input>

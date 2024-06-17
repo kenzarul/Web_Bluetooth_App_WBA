@@ -15,7 +15,8 @@
 //  ******************************************************************************
 
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { Buffer } from 'buffer';
 import logoST from '../images/st-logo.svg';
 import nucleo from '../images/NUCLEO_board.png';
 import dk1 from '../images/DK1.png';
@@ -27,15 +28,25 @@ import dtlogo from '../images/DTlogo.png';
 import p2pslogo from '../images/P2PSlogo.png';
 
 
+
 var myDevice;
 let showAllDevices = false;
 
 const Header = (props) => {
 
+  let fileContent;
+  let fileLength;
+
+
     const [deviceType, setDeviceType] = useState('nucleo');
     const [selectedApp, setSelectedApp] = useState('');
     const [selectedWay, setSelectedWay] = useState('cubeCLI');
     const [characteristicFound, setCharacteristicFound] = useState(false);
+    const [isOtaApplication, setIsOtaApplication] = useState(false);
+    const [githubUrl, setGithubUrl] = useState('');
+
+    const [otaFileContent, setOtaFileContent] = useState(null);
+    const [otaFileLength, setOtaFileLength] = useState(0);
 
 
     function connection() {
@@ -106,6 +117,7 @@ const Header = (props) => {
                                     console.log('HEADER - >> Characteristic: ' + characteristic.uuid + ' ' + getSupportedProperties(characteristic));
                                     createLogElement(characteristic, 4 , 'CHARACTERISTIC')
                                 });
+                                readOTACharacteristic(services);
                                 readNewCharacteristic(characteristics);
                             }));
                            });
@@ -173,6 +185,11 @@ const Header = (props) => {
         
     }
 
+    const readOTACharacteristic = (services) => {
+      const otaService = services.find(service => service.uuid === "0000fe20-cc7a-482a-984a-7f2ed5b3e58f");
+      setIsOtaApplication(!!otaService);
+    };
+
     const readNewCharacteristic = (characteristics) => {
         const newChar = characteristics.find(char => char.uuid === "0000fe31-8e22-4541-9d4c-21edae82ed19");
         if (newChar) {
@@ -189,7 +206,7 @@ const Header = (props) => {
           console.log("Characteristic not found");
         }
       };
-
+      
      //Start Characteristics And Upload Sections
      async function readInfoDevice(value) {
         let statusWord = Array.from(new Uint8Array(value.buffer)).map(byte => byte.toString(16).padStart(2, '0')).join('-');
@@ -587,17 +604,87 @@ const Header = (props) => {
           alert('An error occurred: ' + error.message); 
         }
       }
+
+      async function addNewOTA() {
+        try {
+          const selectedVersion = document.getElementById('selectedVersion').value;
+          const folderName = selectedWay === 'ota' ? `${selectedApp}_ota_add` : selectedApp;
+          const appName = appFolderMap[folderName];
+          const binaryFileName = `${appName}v${selectedVersion}.hex`;
+          const githubRawUrl = `https://api.github.com/repos/kenzarul/STM32WBA_Binaries/contents/${appName}/${binaryFileName}`;
+          const apiResponse = await fetch(githubRawUrl);
+          if (!apiResponse.ok) {
+            throw new Error(`Failed to fetch the binary file metadata: ${apiResponse.statusText}`);
+          }
+          const metadata = await apiResponse.json();
+          const downloadUrl = metadata.download_url;
+      
+          const fileResponse = await fetch(downloadUrl);
+          if (!fileResponse.ok) {
+            throw new Error(`Failed to fetch the binary file: ${fileResponse.statusText}`);
+          }
+          const blob = await fileResponse.blob();
+          const programmerPath = promptForProgrammerPath();
+      
+    
+          const formData = new FormData();
+          formData.append('binaryFile', blob, binaryFileName);
+          formData.append('programmerPath', programmerPath);
+      
+    
+          const uploadResponse = await fetch('http://localhost:4000/upload', {  
+            method: 'POST',
+            body: formData
+          });
+      
+          if (!uploadResponse.ok) {
+            throw new Error(`Failed to upload the binary file: ${uploadResponse.statusText}`);
+          }
+      
+          const message = await uploadResponse.text();
+          console.log(message);
+          alert('Download complete and memory flashed successfully.'); 
+        } catch (error) {
+          console.error('Error:', error);
+          alert('An error occurred: ' + error.message); 
+        }
+      }
     
       async function downloadByOTA() {
-        alert('Cannot use download by OTA as it is  still in developpement.'); 
+        try {
+          const selectedVersion = document.getElementById('selectedVersion').value;
+          const folderName = `${selectedApp}_ota`;
+          const appName = appFolderMap[folderName];
+          const binaryFileName = `${appName}v${selectedVersion}.bin`;
+          const githubRawUrl = `https://api.github.com/repos/kenzarul/STM32WBA_Binaries/contents/${appName}/${binaryFileName}`;
+          localStorage.setItem('githubUrl', githubRawUrl);
+          console.log('GitHub URL set for OTA:', githubRawUrl);
+      
+          // Extract the file name from the URL
+          const fileName = githubRawUrl.split('/').pop();
+      
+          alert('GitHub URL set for OTA: ' + fileName);
+          // Dispatch a custom event to notify other components of the URL change
+          const event = new CustomEvent('githubUrlUpdated', { detail: githubRawUrl });
+          window.dispatchEvent(event);
+        } catch (error) {
+          console.error('Error during OTA update:', error);
+          alert('An error occurred during OTA update: ' + error.message);
+        }
       }
+
     
       function handleDownloadClick() {
         if (selectedWay === 'cubeCLI') {
           downloadByCubeProgrammerCLI();
         } else if (selectedWay === 'ota') {
-          downloadByOTA();
-        } else {
+            if (isOtaApplication) {
+              downloadByOTA();
+            } else {
+              addNewOTA();
+            } 
+        }
+        else {
         
           alert('Please select a method for uploading.');
         }
@@ -613,17 +700,29 @@ const Header = (props) => {
         'app3': 'BLE_DataThroughput_Server',
         'app0_ota': 'BLE_p2pServer_ota',
         'app2_ota': 'BLE_HeartRate_ota',
+        'app0_ota_add': 'BLE_ApplicationInstallManager_Combine_with_p2pServerOTA',
+        'app2_ota_add': 'BLE_ApplicationInstallManager_Combine_with_HeartRateOTA',
         
       };
       
       async function updateVersionOptions(selectedApp) {
-        const folderName = selectedWay === 'ota' ? `${selectedApp}_ota` : selectedApp;
+        let folderName;
+        if (selectedWay === 'ota') {
+          if (isOtaApplication) {
+            folderName = `${selectedApp}_ota`;
+          } else {
+            folderName = `${selectedApp}_ota_add`;
+          }
+        } else {
+          folderName = selectedApp;
+        }
         const directory = appFolderMap[folderName];
         if (!folderName) {
           console.error('Invalid application selection');
           return;
         }
-      
+        
+        let versionRegex;
         const url = `${githubBaseUrl}${directory}`;
         try {
           const response = await fetch(url);
@@ -631,8 +730,16 @@ const Header = (props) => {
             throw new Error(`GitHub API responded with status code ${response.status}`);
           }
           const files = await response.json();
-          const versionRegex = /v(\d+\.\d+\.\d+)\.bin/; 
-      
+          if (selectedWay === 'ota') {
+            if (!isOtaApplication) {
+              versionRegex = /v(\d+\.\d+\.\d+)\.hex/; 
+            }
+            else{
+              versionRegex = /v(\d+\.\d+\.\d+)\.bin/; 
+            }
+          } else {
+              versionRegex = /v(\d+\.\d+\.\d+)\.bin/; 
+          }
           const versions = files
             .map(file => {
               const match = file.name.match(versionRegex);
@@ -854,12 +961,21 @@ const Header = (props) => {
                 <option disabled selected>Choose app first</option>
                 </select>
               </div>
-
-              <div class="custom-divider"></div>
-
-              <div className="Charbuttitle__card">
-                <button onClick={handleDownloadClick}>Upload App</button>
-              </div>
+              {selectedWay !== 'ota' && isOtaApplication ? (
+                <>
+                  <div className="custom-divider"></div>
+                  <div className="Charbuttitle__card">
+                    <button onClick={handleDownloadClick}>Upload App</button>
+                  </div>
+                </>
+                ) : (
+                <>
+                  <div className="custom-divider"></div>
+                  <div className="Charbuttitle__card">
+                    <button onClick={handleDownloadClick}>Set OTA App</button>
+                  </div>
+                </>
+                )}
              </div>
             </div>
         </div>
@@ -869,6 +985,7 @@ const Header = (props) => {
               
             )}
         </div>
+        
     );
 };
 
@@ -947,5 +1064,4 @@ export function createLogElement(logText, maxLevel, description) {
     logElememt.innerHTML = currentTime + " : " + description + '</br>' + formatedString;
     logPanel.appendChild(logElememt);
 }
-
 export default Header;

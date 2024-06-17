@@ -94,11 +94,17 @@ const WeightScale = (props) => {
   
  
     if (bmi > 25) {
-      bmiImage.src = over;
+
+      bmiImage.src = over; // Image indiquant un surplus de poids
+
     } else if (bmi < 18) {
-      bmiImage.src = under;
+
+      bmiImage.src = under; // Image indiquant un poids insuffisant
+
     } else {
-      bmiImage.src = healthy;
+
+      bmiImage.src = healthy; // Image indiquant un poids normal
+
     }
 
   }
