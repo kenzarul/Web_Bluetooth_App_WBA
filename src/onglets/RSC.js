@@ -352,8 +352,8 @@ const [currentImage, setCurrentImage] = useState(walkInShoe);
 
 
 const onSensorLocationButtonClick = (event) => {
-  const location = parseInt(event.target.value, 10); // Ensure the value is an integer
-  const opCode = 0x03; // Update Sensor Location Op Code
+  const location = parseInt(event.target.value, 10); 
+  const opCode = 0x03; 
   const command = new Uint8Array([opCode, location]);
 
   switch (location) {
@@ -380,7 +380,7 @@ const onSensorLocationButtonClick = (event) => {
     WriteIndicateCharacteristic.characteristic.writeValue(command)
       .then(() => {
         console.log('Write successful');
-        // Add any additional logic needed after successful write here
+       
       })
       .catch((error) => {
         console.error('Error writing to characteristic:', error);

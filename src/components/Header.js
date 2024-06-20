@@ -185,9 +185,16 @@ const Header = (props) => {
         
     }
 
+    //Start Characteristics And Upload Sections
+
     const readOTACharacteristic = (services) => {
       const otaService = services.find(service => service.uuid === "0000fe20-cc7a-482a-984a-7f2ed5b3e58f");
-      setIsOtaApplication(!!otaService);
+      if (otaService) {
+        console.log("OTA found:", otaService);
+        setIsOtaApplication(!!otaService);
+      } else {
+        console.log("OTA not found");
+      }
     };
 
     const readNewCharacteristic = (characteristics) => {
@@ -207,7 +214,6 @@ const Header = (props) => {
         }
       };
       
-     //Start Characteristics And Upload Sections
      async function readInfoDevice(value) {
         let statusWord = Array.from(new Uint8Array(value.buffer)).map(byte => byte.toString(16).padStart(2, '0')).join('-');
         let device, rev, board, hw, appv, app, hsv, hsvp1, hsvp2, apprep;
@@ -625,14 +631,11 @@ const Header = (props) => {
           }
           const blob = await fileResponse.blob();
           const programmerPath = promptForProgrammerPath();
-      
-    
           const formData = new FormData();
           formData.append('binaryFile', blob, binaryFileName);
           formData.append('programmerPath', programmerPath);
       
-    
-          const uploadResponse = await fetch('http://localhost:4000/upload', {  
+           const uploadResponse = await fetch('http://localhost:4000/upload', {  
             method: 'POST',
             body: formData
           });
@@ -659,12 +662,9 @@ const Header = (props) => {
           const githubRawUrl = `https://api.github.com/repos/kenzarul/STM32WBA_Binaries/contents/${appName}/${binaryFileName}`;
           localStorage.setItem('githubUrl', githubRawUrl);
           console.log('GitHub URL set for OTA:', githubRawUrl);
-      
-          // Extract the file name from the URL
           const fileName = githubRawUrl.split('/').pop();
       
           alert('GitHub URL set for OTA: ' + fileName);
-          // Dispatch a custom event to notify other components of the URL change
           const event = new CustomEvent('githubUrlUpdated', { detail: githubRawUrl });
           window.dispatchEvent(event);
         } catch (error) {
@@ -936,7 +936,7 @@ const Header = (props) => {
               <input type="radio" name="application" value="app1" checked={selectedApp === 'app1'} disabled={isAppDisabledForOta('app1')}  onChange={() => { setSelectedApp('app1'); updateVersionOptions('app1');setSelectedApp('app1'); updateVersionOptions('app1'); }} />
               <img src={htlogo} className={`appsLogo ${isAppDisabledForOta('app1') ? 'logo-disabled' : ''}`}></img>
               <a href="https://wiki.st.com/stm32mcu/wiki/Connectivity:STM32WBA_Health_Thermometer" target="_blank" className="app-list-link">
-              <span className={`app-list-text ${isAppDisabledForOta('app1') ? 'disabled' : ''}`}>Health Temperature</span></a></label>
+              <span className={`app-list-text ${isAppDisabledForOta('app1') ? 'disabled' : ''}`}>Health Thermometer</span></a></label>
 
               <label className={`app-list-item ${selectedApp === 'app2' ? 'active' : ''}`}>
               <input type="radio" name="application" value="app2" checked={selectedApp === 'app2'} onChange={() => { setSelectedApp('app2'); updateVersionOptions('app2'); setSelectedApp('app2'); updateVersionOptions('app2');}}/>
@@ -961,19 +961,28 @@ const Header = (props) => {
                 <option disabled selected>Choose app first</option>
                 </select>
               </div>
-              {selectedWay !== 'ota' && isOtaApplication ? (
-                <>
-                  <div className="custom-divider"></div>
-                  <div className="Charbuttitle__card">
-                    <button onClick={handleDownloadClick}>Upload App</button>
-                  </div>
-                </>
-                ) : (
-                <>
-                  <div className="custom-divider"></div>
-                  <div className="Charbuttitle__card">
+              {selectedWay === 'ota' ? 
+                (isOtaApplication ? (
+                   <>
+                    <div className="custom-divider"></div>
+                    <div className="Charbuttitle__card">
                     <button onClick={handleDownloadClick}>Set OTA App</button>
-                  </div>
+                    </div>
+                  </>
+              ) : (
+                  <>
+                    <div className="custom-divider"></div>
+                    <div className="Charbuttitle__card">
+                    <button onClick={handleDownloadClick}>Upload App</button>
+                    </div>
+                  </>
+                  ))
+                : (
+                <>
+                 <div className="custom-divider"></div>
+                 <div className="Charbuttitle__card">
+                   <button onClick={handleDownloadClick}>Upload App</button>
+                 </div>
                 </>
                 )}
              </div>

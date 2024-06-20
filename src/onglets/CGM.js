@@ -256,7 +256,7 @@ const ContinuousGlucoseMonitoring = (props) => {
 
     
         // Interpret the Cal/Temp bits
-        let timeSyncRequired = (sensorStatusAnnunciation.calTemp & (1 << 0)) !== 0; // Note: Bit 8 in the table corresponds to bit 0 in the byte
+        let timeSyncRequired = (sensorStatusAnnunciation.calTemp & (1 << 0)) !== 0; 
         let calibrationNotAllowed = (sensorStatusAnnunciation.calTemp & (1 << 1)) !== 0;
         let calibrationRecommed = (sensorStatusAnnunciation.calTemp & (1 << 2)) !== 0;
         let calibrationRequired = (sensorStatusAnnunciation.calTemp & (1 << 3)) !== 0;
@@ -266,7 +266,7 @@ const ContinuousGlucoseMonitoring = (props) => {
 
     
         // Interpret the Warning bits
-        let sensorPatientLow = (sensorStatusAnnunciation.warning & (1 << 0)) !== 0; // Note: Bit 16 in the table corresponds to bit 0 in the byte
+        let sensorPatientLow = (sensorStatusAnnunciation.warning & (1 << 0)) !== 0; 
         let sensorPatientHigh = (sensorStatusAnnunciation.warning & (1 << 1)) !== 0;
         let sensorHypo = (sensorStatusAnnunciation.warning & (1 << 2)) !== 0;
         let sensorHyper = (sensorStatusAnnunciation.warning & (1 << 3)) !== 0;
@@ -277,21 +277,21 @@ const ContinuousGlucoseMonitoring = (props) => {
 
     // CGM Trend Information (if present)
     let trendInformation = null;
-    if (flags & (1 << 0)) { // Check if bit 0 is set
-        trendInformation = buf[currentIndex] | (buf[currentIndex + 1] << 8); // Convert raw value to trend information
-        currentIndex += 2; // Move to the next piece of data
+    if (flags & (1 << 0)) { 
+        trendInformation = buf[currentIndex] | (buf[currentIndex + 1] << 8); 
+        currentIndex += 2; 
     }
 
     // CGM Quality
     let quality = null;
     if (flags & (1 << 1)) { // Check if bit 1 is set
-        quality = buf[currentIndex] | (buf[currentIndex + 1] << 8); // Convert raw value to quality percentage
-        currentIndex += 2; // Move to the next piece of data
+        quality = buf[currentIndex] | (buf[currentIndex + 1] << 8); 
+        currentIndex += 2; 
     }
 
     // E2E-CRC (if present )
     let e2eCrc = null;
-    if (recordSize === currentIndex + 2) { // Check if E2E-CRC is present by comparing sizes
+    if (recordSize === currentIndex + 2) { 
         e2eCrc = buf[currentIndex] | (buf[currentIndex + 1] << 8);
     }
 
@@ -424,7 +424,7 @@ async function readFeature() {
   let multipleSessionsSupported = (features & (1 << 14)) !== 0;
   let cgmTrendInformationSupported = (features & (1 << 15)) !== 0;
   let cgmQualitySupported = (features & (1 << 16)) !== 0;
-  // Bits 17-23 are reserved for future use
+
 
 
   let typeSampleLocation = featureData[3];
@@ -478,7 +478,7 @@ async function readStartTime() {
   let hours = startTimeData[4];
   let minutes = startTimeData[5];
   let seconds = startTimeData[6];
-  // ... handle any additional bytes if needed
+
 
   let formattedStartTime = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
   console.log(`Start Time: ${formattedStartTime}`);
@@ -520,8 +520,8 @@ async function writeStartTime() {
 
 
   let crcBytes = new Uint8Array([
-    crcValue & 0xFF,        // CRC low byte
-    (crcValue >> 8) & 0xFF  // CRC high byte
+    crcValue & 0xFF,       
+    (crcValue >> 8) & 0xFF  
   ]);
 
  
@@ -861,7 +861,6 @@ function handleSocpIndication(event) {
         0x8: "Undetermined Plasma",
         0x9: "Interstitial Fluid (ISF)",
         0xA: "Control Solution",
-        // 0xB to 0xF Reserved for Future Use
     };
 
     const sampleLocationStrings = {
@@ -871,7 +870,6 @@ function handleSocpIndication(event) {
         0x3: "Earlobe",
         0x4: "Control solution",
         0x5: "Subcutaneous tissue",
-        // 0x6 to 0xF Reserved for Future Use
     };
 
     const calibrationStatusStrings = {
@@ -1058,13 +1056,13 @@ async function onSendSocpClick() {
         finalBuffer = new ArrayBuffer(bufferSize);
         dataView = new DataView(finalBuffer);
       
-        dataView.setUint8(0, opCode); // Set OpCode
-        dataView.setUint16(1, operand); // Set Glucose Concentration 
-        dataView.setUint16(3, calibrationTime, true); // Set Calibration Time 
-        dataView.setUint8(5, typeSampleLocationCombined ); // Set Type/Sample Location
-        dataView.setUint16(6, nextCalibrationTime, true); // Set Next Calibration Time 
-        dataView.setUint16(8, calibrationDataRecordNumber, true); // Set Calibration Data Record Number 
-        dataView.setUint8(10, calibrationStatus); // Set Calibration Status
+        dataView.setUint8(0, opCode); 
+        dataView.setUint16(1, operand); 
+        dataView.setUint16(3, calibrationTime, true); 
+        dataView.setUint8(5, typeSampleLocationCombined ); 
+        dataView.setUint16(6, nextCalibrationTime, true);  
+        dataView.setUint16(8, calibrationDataRecordNumber, true); 
+        dataView.setUint8(10, calibrationStatus); 
         break;
     case 'GetGlucoseCalibrationvalue':
         opCode = 0x05;  
@@ -1186,7 +1184,6 @@ async function onSendSocpClick() {
     (crcValue >> 8) & 0xFF  
   ]);
 
-  // Add the CRC bytes to the final buffer
   dataView.setUint8(bufferSize - 2, crcBytes[0]);
   dataView.setUint8(bufferSize - 1, crcBytes[1]);
 
